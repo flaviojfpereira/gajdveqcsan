@@ -6,8 +6,18 @@ import { LoginModal } from './components/LoginModal.js';
 import { TeamDrawModal } from './components/TeamDrawModal.js';
 import { Shoutbox } from './components/Shoutbox.js';
 import { AudioPlayer } from './components/AudioPlayer.js';
-import type { AppState, User, Vote, Comment, VoteStatus, TeamDistribution } from './types.js';
+import type { AppState, User, Vote, VoteStatus, TeamDistribution } from './types.js';
 import { getDefaultAppState } from './utils/calendarGenerator.js';
+import {
+  subscribeToFirestore,
+  setVoteInFirestore,
+  setBulkVotesInFirestore,
+  addCommentInFirestore,
+  registerUserInFirestore,
+  saveTeamInFirestore,
+  userIdFromName,
+  type SyncStatus
+} from './lib/firebase.js';
 
 function getInitialState(): AppState {
   return getDefaultAppState();
@@ -24,8 +34,9 @@ export default function App() {
   } | null>(null);
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('connecting');
+  const [syncError, setSyncError] = useState<string | null>(null);
 
-  // Team Modal State
   const [teamModalData, setTeamModalData] = useState<{
     isOpen: boolean;
     dateStr: string;
@@ -36,8 +47,6 @@ export default function App() {
     slotId: ''
   });
 
-  // App opens strictly WITHOUT any user logged in.
-  // Purge any lingering session keys and old stale cache.
   useEffect(() => {
     try {
       localStorage.removeItem('gajdveqcsan_user');
@@ -49,31 +58,37 @@ export default function App() {
     setCurrentUser(null);
   }, []);
 
-  // Fetch authoritative state from the shared backend
-  const fetchState = async () => {
-    try {
-      const res = await fetch('/api/state');
-      if (res.ok) {
-        const serverState: AppState = await res.json();
-        if (serverState && Array.isArray(serverState.days) && serverState.days.length > 0) {
-          setState(serverState);
-        }
-      }
-    } catch (err) {
-      console.warn('API sync notice:', err);
-    }
-  };
-
   useEffect(() => {
-    fetchState();
-    // Poll every 3s to keep all friends in sync across different browsers
-    const interval = setInterval(fetchState, 3000);
-    return () => clearInterval(interval);
+    const unsub = subscribeToFirestore({
+      onVotes: votes => {
+        setState(prev => ({ ...prev, votes }));
+      },
+      onComments: comments => {
+        setState(prev => ({ ...prev, comments }));
+      },
+      onUsers: users => {
+        setState(prev => {
+          const byId = new Map<string, User>();
+          for (const u of users) byId.set(u.id, u);
+          if (!byId.has('u_flavio')) {
+            const flavio = prev.users.find(u => u.id === 'u_flavio');
+            if (flavio) byId.set(flavio.id, flavio);
+          }
+          return { ...prev, users: Array.from(byId.values()) };
+        });
+      },
+      onTeams: teams => {
+        setState(prev => ({ ...prev, teams }));
+      },
+      onStatus: (status, message) => {
+        setSyncStatus(status);
+        setSyncError(status === 'error' ? message || 'Falha a ligar ao storage partilhado' : null);
+      }
+    });
+    return () => unsub();
   }, []);
 
-  // Core vote execution
   const executeVote = async (user: User, dateStr: string, slotId: string, status: VoteStatus | 'none') => {
-    // Optimistic update
     setState(prev => {
       const votes = [...prev.votes];
       const idx = votes.findIndex(
@@ -83,8 +98,8 @@ export default function App() {
       if (status === 'none') {
         if (idx !== -1) votes.splice(idx, 1);
       } else {
-        const newVote = {
-          id: idx !== -1 ? votes[idx].id : `v_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        const newVote: Vote = {
+          id: idx !== -1 ? votes[idx].id : `v_${user.id}_${dateStr}_${slotId}`,
           userId: user.id,
           userName: user.name,
           dateStr,
@@ -92,81 +107,59 @@ export default function App() {
           status,
           updatedAt: new Date().toISOString()
         };
-        if (idx !== -1) {
-          votes[idx] = newVote;
-        } else {
-          votes.push(newVote);
-        }
+        if (idx !== -1) votes[idx] = newVote;
+        else votes.push(newVote);
       }
       return { ...prev, votes };
     });
 
     try {
-      await fetch('/api/votes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          userName: user.name,
-          dateStr,
-          slotId,
-          status
-        })
-      });
+      await setVoteInFirestore(user, dateStr, slotId, status);
     } catch (err) {
-      console.warn('Vote recorded locally:', err);
+      console.warn('Firestore vote write failed:', err);
+      setSyncStatus('error');
+      setSyncError(err instanceof Error ? err.message : 'Não foi possível gravar o voto');
     }
   };
 
-  // Handle simple login (name + password = same name)
-  const handleLogin = async (name: string, password?: string): Promise<boolean> => {
+  const handleLogin = async (name: string, _password?: string): Promise<boolean> => {
     const cleanName = name.trim();
     if (!cleanName) return false;
 
-    let loggedUser: User | null = null;
+    const loggedUser: User = {
+      id: userIdFromName(cleanName),
+      name: cleanName,
+      avatarSeed: cleanName.toLowerCase().replace(/\s+/g, '_'),
+      createdAt: new Date().toISOString()
+    };
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: cleanName, password: password || cleanName })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.user) {
-          loggedUser = data.user;
-        }
-      }
-    } catch (err) {
-      console.warn('Backend login fallback to local user:', err);
-    }
-
-    // Fallback if backend is static/offline
-    if (!loggedUser) {
-      const existing = state.users.find(u => u.name.toLowerCase() === cleanName.toLowerCase());
-      if (existing) {
-        loggedUser = existing;
-      } else {
-        loggedUser = {
-          id: `u_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          name: cleanName,
-          avatarSeed: cleanName.toLowerCase().replace(/\s+/g, '_'),
-          createdAt: new Date().toISOString()
-        };
-        setState(prev => ({ ...prev, users: [...prev.users, loggedUser!] }));
-      }
+    const existing = state.users.find(
+      u => u.id === loggedUser.id || u.name.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (existing) {
+      loggedUser.id = existing.id;
+      loggedUser.name = existing.name;
+      loggedUser.avatarSeed = existing.avatarSeed;
+      loggedUser.createdAt = existing.createdAt;
     }
 
     setCurrentUser(loggedUser);
+    setState(prev => {
+      if (prev.users.some(u => u.id === loggedUser.id)) return prev;
+      return { ...prev, users: [...prev.users, loggedUser] };
+    });
 
-    // Automatically record pending vote if user clicked before logging in
+    try {
+      await registerUserInFirestore(loggedUser);
+    } catch (err) {
+      console.warn('Firestore user write failed:', err);
+    }
+
     if (pendingVote) {
       await executeVote(loggedUser, pendingVote.dateStr, pendingVote.slotId, pendingVote.status);
       setPendingVote(null);
     }
 
-    // Automatically send comment if typed before logging in
     if (pendingComment) {
       await executeAddComment(loggedUser, pendingComment);
       setPendingComment(null);
@@ -177,11 +170,14 @@ export default function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('gajdveqcsan_user');
-    localStorage.removeItem('gajdveqcsan_explicit_login');
+    try {
+      localStorage.removeItem('gajdveqcsan_user');
+      localStorage.removeItem('gajdveqcsan_explicit_login');
+    } catch {
+      // ignore
+    }
   };
 
-  // Vote on a specific slot with optimistic UI update
   const handleVote = async (dateStr: string, slotId: string, status: VoteStatus | 'none') => {
     if (!currentUser) {
       setPendingVote({ dateStr, slotId, status });
@@ -192,7 +188,6 @@ export default function App() {
     await executeVote(currentUser, dateStr, slotId, status);
   };
 
-  // Bulk votes update (e.g. "Posso todas as sextas")
   const handleBulkVote = async (updates: { dateStr: string; slotId: string; status: VoteStatus | 'none' }[]) => {
     if (!currentUser) {
       setIsLoginOpen(true);
@@ -209,7 +204,7 @@ export default function App() {
           if (idx !== -1) votes.splice(idx, 1);
         } else {
           const vote: Vote = {
-            id: idx !== -1 ? votes[idx].id : `v_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            id: idx !== -1 ? votes[idx].id : `v_${currentUser.id}_${item.dateStr}_${item.slotId}`,
             userId: currentUser.id,
             userName: currentUser.name,
             dateStr: item.dateStr,
@@ -225,21 +220,14 @@ export default function App() {
     });
 
     try {
-      await fetch('/api/votes/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: currentUser.id,
-          userName: currentUser.name,
-          updates
-        })
-      });
+      await setBulkVotesInFirestore(currentUser, updates);
     } catch (err) {
-      console.warn('Bulk vote stored locally:', err);
+      console.warn('Firestore bulk vote write failed:', err);
+      setSyncStatus('error');
+      setSyncError(err instanceof Error ? err.message : 'Não foi possível gravar os votos');
     }
   };
 
-  // Execute comment submission
   const executeAddComment = async (user: User, text: string): Promise<boolean> => {
     const cleanText = text.trim();
     if (!cleanText) return false;
@@ -258,22 +246,15 @@ export default function App() {
     }));
 
     try {
-      await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          userName: user.name,
-          text: cleanText
-        })
-      });
+      await addCommentInFirestore(user, cleanText);
     } catch (err) {
-      console.warn('Comment stored locally:', err);
+      console.warn('Firestore comment write failed:', err);
+      setSyncStatus('error');
+      setSyncError(err instanceof Error ? err.message : 'Não foi possível gravar o comentário');
     }
     return true;
   };
 
-  // Add message to shoutbox
   const handleAddComment = async (text: string): Promise<boolean> => {
     if (!currentUser) {
       setPendingComment(text);
@@ -283,7 +264,6 @@ export default function App() {
     return executeAddComment(currentUser, text);
   };
 
-  // Shuffle teams for 5v5
   const handleShuffleTeams = async (dateStr: string, slotId: string): Promise<TeamDistribution | null> => {
     const confirmedVotes = state.votes.filter(
       v => v.dateStr === dateStr && v.slotId === slotId && v.status === 'yes'
@@ -315,26 +295,9 @@ export default function App() {
     }));
 
     try {
-      const res = await fetch('/api/teams/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dateStr, slotId })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.distribution) {
-          setState(prev => ({
-            ...prev,
-            teams: {
-              ...prev.teams,
-              [`${dateStr}_${slotId}`]: data.distribution
-            }
-          }));
-          return data.distribution;
-        }
-      }
+      await saveTeamInFirestore(localDistribution);
     } catch (err) {
-      console.warn('Teams generated locally:', err);
+      console.warn('Firestore team write failed:', err);
     }
     return localDistribution;
   };
@@ -347,7 +310,6 @@ export default function App() {
     });
   };
 
-  // Count unique voters
   const uniqueVoterIds = new Set(state.votes.map(v => v.userId));
   const totalVotersCount = Math.max(state.users.length, uniqueVoterIds.size);
 
@@ -359,7 +321,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-16">
-      {/* Header with Cartoon Image Banner */}
       <HeaderBanner
         currentUser={currentUser}
         onLogout={handleLogout}
@@ -367,9 +328,21 @@ export default function App() {
         totalVotersCount={totalVotersCount}
       />
 
-      {/* Main Content Container */}
+      {syncStatus !== 'live' && (
+        <div
+          className={`w-full text-center text-xs py-1.5 px-3 font-semibold ${
+            syncStatus === 'error'
+              ? 'bg-red-950 text-red-300 border-b border-red-800'
+              : 'bg-amber-950 text-amber-300 border-b border-amber-800'
+          }`}
+        >
+          {syncStatus === 'connecting'
+            ? 'A ligar ao storage partilhado…'
+            : `Storage partilhado offline. Votos deste browser não passam para os outros. ${syncError || ''}`}
+        </div>
+      )}
+
       <main className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
-        {/* Top Highlight Summary Card */}
         <SummaryCard
           days={state.days}
           votes={state.votes}
@@ -380,7 +353,6 @@ export default function App() {
           onQuickVote={(dateStr, slotId, status) => handleVote(dateStr, slotId, status)}
         />
 
-        {/* Calendar View with 5v5 Slots and Voting */}
         <CalendarSchedule
           days={state.days}
           votes={state.votes}
@@ -392,7 +364,6 @@ export default function App() {
           selectedDateStr={selectedDateStr}
         />
 
-        {/* Nostalgic Shoutbox / Notes */}
         <Shoutbox
           comments={state.comments}
           currentUser={currentUser}
@@ -401,7 +372,6 @@ export default function App() {
         />
       </main>
 
-      {/* Footer */}
       <footer className="w-full text-center py-6 text-xs text-slate-500 border-t border-slate-900 mt-12">
         <p className="font-gaming uppercase tracking-wider text-slate-400">
           GAJDVEQCSAN • Grupo de amigos que joga CS à noite
@@ -411,7 +381,6 @@ export default function App() {
         </p>
       </footer>
 
-      {/* Login Modal */}
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
@@ -419,7 +388,6 @@ export default function App() {
         existingUsers={state.users}
       />
 
-      {/* 5v5 Team Draw Modal */}
       <TeamDrawModal
         isOpen={teamModalData.isOpen}
         onClose={() => setTeamModalData(prev => ({ ...prev, isOpen: false }))}
@@ -431,7 +399,6 @@ export default function App() {
         onShuffleTeams={handleShuffleTeams}
       />
 
-      {/* Floating Audio Player with Song Indicator */}
       <AudioPlayer
         songTitle="Para os Meus Ninjas"
         artist="GAJDVEQCSAN Hino"

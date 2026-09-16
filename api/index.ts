@@ -75,12 +75,11 @@ function getDbPath(): string {
 
 function loadDatabase() {
   try {
-    const p = getDbPath();
-    if (fs.existsSync(p)) {
-      const data = fs.readFileSync(p, 'utf-8');
-      state = JSON.parse(data);
-    } else if (fs.existsSync(LOCAL_DB)) {
-      const data = fs.readFileSync(LOCAL_DB, 'utf-8');
+    // Serverless /tmp only. Never hydrate votes from the committed
+    // data/database.json — that file is baked into every deploy and
+    // would resurrect old votes on every cold start / new instance.
+    if (fs.existsSync(TMP_DB)) {
+      const data = fs.readFileSync(TMP_DB, 'utf-8');
       state = JSON.parse(data);
     }
   } catch (err) {

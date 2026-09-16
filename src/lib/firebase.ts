@@ -9,29 +9,44 @@ import {
   query,
   orderBy,
   limit,
-  writeBatch
+  writeBatch,
+  enableIndexedDbPersistence
 } from 'firebase/firestore';
-import type { Vote, User, Comment, TeamAssignment, VoteStatus } from '../types.js';
+import type { Vote, User, Comment, TeamDistribution, VoteStatus } from '../types.js';
 
 export const firebaseConfig = {
-  projectId: "boreal-agency-wpthm",
-  appId: "1:319451236025:web:05a46cde88060330ffbd68",
-  apiKey: "AIzaSyB9BtNl7-djmsvCAfKjCKnTOGsWGunBaoU",
-  authDomain: "boreal-agency-wpthm.firebaseapp.com",
-  firestoreDatabaseId: "ai-studio-gajdveqcsan5v5cs-64e39e14-55f4-4473-aafa-2ceb3b9eb0da",
-  storageBucket: "boreal-agency-wpthm.firebasestorage.app",
-  messagingSenderId: "319451236025"
+  projectId: 'boreal-agency-wpthm',
+  appId: '1:319451236025:web:05a46cde88060330ffbd68',
+  apiKey: 'AIzaSyB9BtNl7-djmsvCAfKjCKnTOGsWGunBaoU',
+  authDomain: 'boreal-agency-wpthm.firebaseapp.com',
+  firestoreDatabaseId: 'ai-studio-gajdveqcsan5v5cs-64e39e14-55f4-4473-aafa-2ceb3b9eb0da',
+  storageBucket: 'boreal-agency-wpthm.firebasestorage.app',
+  messagingSenderId: '319451236025'
 };
 
-// Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore targeting the provisioned database
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
-/**
- * Generate standard deterministic vote doc ID: `${userId}_${dateStr}_${slotId}`
- */
+try {
+  enableIndexedDbPersistence(db).catch(() => {
+    // Multiple tabs or unsupported browser — live network still works.
+  });
+} catch {
+  // ignore
+}
+
+export function userIdFromName(name: string): string {
+  const normalized = name
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return normalized ? `u_${normalized}` : `u_anon`;
+}
+
 export function getVoteDocId(userId: string, dateStr: string, slotId: string): string {
   const cleanUser = userId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const cleanDate = dateStr.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -39,9 +54,10 @@ export function getVoteDocId(userId: string, dateStr: string, slotId: string): s
   return `${cleanUser}___${cleanDate}___${cleanSlot}`;
 }
 
-/**
- * Save or update a vote in Firestore
- */
+export function getTeamDocId(dateStr: string, slotId: string): string {
+  return `${dateStr.replace(/[^a-zA-Z0-9_-]/g, '_')}___${slotId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+}
+
 export async function setVoteInFirestore(
   user: User,
   dateStr: string,
@@ -66,13 +82,9 @@ export async function setVoteInFirestore(
     await setDoc(voteRef, voteData, { merge: true });
   }
 
-  // Also ensure user profile exists in Firestore
   await registerUserInFirestore(user);
 }
 
-/**
- * Bulk save or clear votes
- */
 export async function setBulkVotesInFirestore(
   user: User,
   updates: { dateStr: string; slotId: string; status: VoteStatus | 'none' }[]
@@ -103,9 +115,6 @@ export async function setBulkVotesInFirestore(
   await registerUserInFirestore(user);
 }
 
-/**
- * Save a new comment to Firestore
- */
 export async function addCommentInFirestore(user: User, text: string, dateStr?: string): Promise<void> {
   const commentId = `c_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   const commentRef = doc(db, 'comments', commentId);
@@ -123,9 +132,6 @@ export async function addCommentInFirestore(user: User, text: string, dateStr?: 
   await registerUserInFirestore(user);
 }
 
-/**
- * Register or update a user profile in Firestore
- */
 export async function registerUserInFirestore(user: User): Promise<void> {
   const userRef = doc(db, 'users', user.id);
   await setDoc(
@@ -140,79 +146,86 @@ export async function registerUserInFirestore(user: User): Promise<void> {
   );
 }
 
-/**
- * Save team assignments in Firestore
- */
-export async function saveTeamInFirestore(
-  dateStr: string,
-  slotId: string,
-  teams: TeamAssignment
-): Promise<void> {
-  const teamDocId = `${dateStr.replace(/[^a-zA-Z0-9_-]/g, '_')}___${slotId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+export async function saveTeamInFirestore(distribution: TeamDistribution): Promise<void> {
+  const teamDocId = getTeamDocId(distribution.dateStr, distribution.slotId);
   const teamRef = doc(db, 'teams', teamDocId);
 
   await setDoc(teamRef, {
-    dateStr,
-    slotId,
-    ct: teams.ct || [],
-    tr: teams.tr || [],
-    spectators: teams.spectators || [],
+    ...distribution,
     updatedAt: new Date().toISOString()
   });
 }
 
-/**
- * Real-time subscribers for Firestore collections
- */
+export type SyncStatus = 'connecting' | 'live' | 'error';
+
 export function subscribeToFirestore(callbacks: {
   onVotes: (votes: Vote[]) => void;
   onComments: (comments: Comment[]) => void;
   onUsers: (users: User[]) => void;
-  onTeams: (teamsMap: Record<string, TeamAssignment>) => void;
+  onTeams: (teamsMap: Record<string, TeamDistribution>) => void;
+  onStatus?: (status: SyncStatus, message?: string) => void;
 }) {
-  // 1. Votes live listener
+  callbacks.onStatus?.('connecting');
+
   const votesUnsub = onSnapshot(
     collection(db, 'votes'),
-    (snapshot) => {
+    snapshot => {
       const votes: Vote[] = [];
-      snapshot.forEach((d) => {
+      snapshot.forEach(d => {
         const data = d.data() as Vote;
         if (data && data.userId && data.dateStr && data.status) {
-          votes.push(data);
+          votes.push({ ...data, id: data.id || d.id });
         }
       });
       callbacks.onVotes(votes);
+      callbacks.onStatus?.('live');
     },
-    (err) => {
+    err => {
       console.warn('Firestore votes listener error:', err);
+      callbacks.onStatus?.('error', err.message);
     }
   );
 
-  // 2. Comments live listener
   const commentsQuery = query(collection(db, 'comments'), orderBy('createdAt', 'desc'), limit(100));
-  const commentsUnsub = onSnapshot(
+  let commentsUnsub = onSnapshot(
     commentsQuery,
-    (snapshot) => {
+    snapshot => {
       const comments: Comment[] = [];
-      snapshot.forEach((d) => {
+      snapshot.forEach(d => {
         const data = d.data() as Comment;
         if (data && data.text) {
-          comments.push(data);
+          comments.push({ ...data, id: data.id || d.id });
         }
       });
       callbacks.onComments(comments);
     },
-    (err) => {
-      console.warn('Firestore comments listener error:', err);
+    err => {
+      console.warn('Firestore comments ordered listener error:', err);
+      commentsUnsub = onSnapshot(
+        collection(db, 'comments'),
+        snapshot => {
+          const comments: Comment[] = [];
+          snapshot.forEach(d => {
+            const data = d.data() as Comment;
+            if (data && data.text) {
+              comments.push({ ...data, id: data.id || d.id });
+            }
+          });
+          comments.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+          callbacks.onComments(comments.slice(0, 100));
+        },
+        fallbackErr => {
+          console.warn('Firestore comments fallback error:', fallbackErr);
+        }
+      );
     }
   );
 
-  // 3. Users live listener
   const usersUnsub = onSnapshot(
     collection(db, 'users'),
-    (snapshot) => {
+    snapshot => {
       const users: User[] = [];
-      snapshot.forEach((d) => {
+      snapshot.forEach(d => {
         const data = d.data() as User;
         if (data && data.id && data.name) {
           users.push(data);
@@ -220,30 +233,25 @@ export function subscribeToFirestore(callbacks: {
       });
       callbacks.onUsers(users);
     },
-    (err) => {
+    err => {
       console.warn('Firestore users listener error:', err);
+      callbacks.onStatus?.('error', err.message);
     }
   );
 
-  // 4. Teams live listener
   const teamsUnsub = onSnapshot(
     collection(db, 'teams'),
-    (snapshot) => {
-      const teamsMap: Record<string, TeamAssignment> = {};
-      snapshot.forEach((d) => {
-        const data = d.data() as { dateStr: string; slotId: string; ct: string[]; tr: string[]; spectators: string[] };
+    snapshot => {
+      const teamsMap: Record<string, TeamDistribution> = {};
+      snapshot.forEach(d => {
+        const data = d.data() as TeamDistribution;
         if (data && data.dateStr && data.slotId) {
-          const key = `${data.dateStr}_${data.slotId}`;
-          teamsMap[key] = {
-            ct: data.ct || [],
-            tr: data.tr || [],
-            spectators: data.spectators || []
-          };
+          teamsMap[`${data.dateStr}_${data.slotId}`] = data;
         }
       });
       callbacks.onTeams(teamsMap);
     },
-    (err) => {
+    err => {
       console.warn('Firestore teams listener error:', err);
     }
   );
@@ -255,16 +263,3 @@ export function subscribeToFirestore(callbacks: {
     teamsUnsub();
   };
 }
-
-// Test connection to Firestore
-export async function testFirestoreConnection() {
-  try {
-    const { getDocFromServer } = await import('firebase/firestore');
-    await getDocFromServer(doc(db, 'system', 'ping'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn("Firestore connection notice: client is running offline or reconnecting.");
-    }
-  }
-}
-testFirestoreConnection();

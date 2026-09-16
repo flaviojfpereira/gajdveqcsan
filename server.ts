@@ -99,11 +99,13 @@ function loadDatabase() {
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, "utf-8");
       const loaded = JSON.parse(raw);
-      // Merge with newly calculated days if needed
-      if (loaded.votes && loaded.users) {
+      if (loaded && Array.isArray(loaded.users)) {
         state = {
-          ...loaded,
-          days: loaded.days && loaded.days.length > 0 ? loaded.days : generateInitialDays()
+          users: loaded.users,
+          days: loaded.days && loaded.days.length > 0 ? loaded.days : generateInitialDays(),
+          votes: Array.isArray(loaded.votes) ? loaded.votes : [],
+          comments: Array.isArray(loaded.comments) ? loaded.comments : state.comments,
+          teams: loaded.teams && typeof loaded.teams === "object" ? loaded.teams : {}
         };
       }
     } else {

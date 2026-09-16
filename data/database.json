@@ -5,18 +5,6 @@
       "name": "Flávio",
       "avatarSeed": "flavio",
       "createdAt": "2026-09-16T11:38:06.827Z"
-    },
-    {
-      "id": "u_1789564037491_obgw",
-      "name": "Tiago",
-      "avatarSeed": "tiago",
-      "createdAt": "2026-09-16T13:07:17.491Z"
-    },
-    {
-      "id": "u_antonio",
-      "name": "António",
-      "avatarSeed": "antónio",
-      "createdAt": "2026-09-16T13:10:22.045Z"
     }
   ],
   "days": [
@@ -801,26 +789,7 @@
       ]
     }
   ],
-  "votes": [
-    {
-      "id": "v_1789564040601_t2vt",
-      "userId": "u_1789564037491_obgw",
-      "userName": "Tiago",
-      "dateStr": "2026-09-18",
-      "slotId": "night_cs",
-      "status": "yes",
-      "updatedAt": "2026-09-16T13:07:20.601Z"
-    },
-    {
-      "id": "v_1789564222045_abdx",
-      "userId": "u_antonio",
-      "userName": "António",
-      "dateStr": "2026-09-25",
-      "slotId": "night_cs",
-      "status": "yes",
-      "updatedAt": "2026-09-16T13:10:22.045Z"
-    }
-  ],
+  "votes": [],
   "comments": [
     {
       "id": "c1",
