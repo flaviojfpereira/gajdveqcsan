@@ -130,6 +130,10 @@ loadDatabase();
 
 // --- API Endpoints ---
 
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: Date.now() });
+});
+
 // Get current state
 app.get("/api/state", (_req, res) => {
   res.json(state);

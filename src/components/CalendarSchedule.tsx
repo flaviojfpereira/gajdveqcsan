@@ -602,16 +602,45 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({
                       )}
                     </div>
                   ) : (
-                    <div className="text-center py-4 space-y-3">
-                      <p className="text-xs text-slate-400">
-                        Entra com o teu nome para votares nesta data.
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-300">
+                        Clica na tua disponibilidade para votar nesta data:
                       </p>
-                      <button
-                        onClick={onOpenLogin}
-                        className="cartoon-btn px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs font-gaming uppercase tracking-wider cursor-pointer"
-                      >
-                        Entrar com o meu Nome
-                      </button>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => onVote(activeDay.dateStr, 'night_cs', 'yes')}
+                          className="cartoon-btn p-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1 transition-all cursor-pointer bg-slate-900 hover:bg-emerald-950/70 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/50"
+                        >
+                          <Check className="w-4 h-4 text-emerald-400" />
+                          <span>Posso</span>
+                        </button>
+
+                        <button
+                          onClick={() => onVote(activeDay.dateStr, 'night_cs', 'maybe')}
+                          className="cartoon-btn p-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1 transition-all cursor-pointer bg-slate-900 hover:bg-amber-950/70 text-slate-300 hover:text-amber-300 border border-slate-800 hover:border-amber-500/50"
+                        >
+                          <HelpCircle className="w-4 h-4 text-amber-400" />
+                          <span>Talvez</span>
+                        </button>
+
+                        <button
+                          onClick={() => onVote(activeDay.dateStr, 'night_cs', 'no')}
+                          className="cartoon-btn p-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1 transition-all cursor-pointer bg-slate-900 hover:bg-red-950/70 text-slate-300 hover:text-red-300 border border-slate-800 hover:border-red-500/50"
+                        >
+                          <X className="w-4 h-4 text-red-400" />
+                          <span>Não</span>
+                        </button>
+                      </div>
+
+                      <div className="text-center pt-1">
+                        <button
+                          onClick={onOpenLogin}
+                          className="text-xs text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
+                        >
+                          Ou entra com o teu nome aqui
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
