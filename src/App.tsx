@@ -47,25 +47,16 @@ export default function App() {
     slotId: ''
   });
 
-  // App opens WITHOUT default login so anyone can use it.
-  // Only restore session if user explicitly logged in previously.
+  // App opens strictly WITHOUT any user logged in.
+  // Purge any lingering session keys so no one is ever auto-logged in.
   useEffect(() => {
     try {
-      const isExplicit = localStorage.getItem('gajdveqcsan_explicit_login');
-      const savedUserStr = localStorage.getItem('gajdveqcsan_user');
-      if (isExplicit === 'true' && savedUserStr) {
-        const parsed = JSON.parse(savedUserStr);
-        setCurrentUser(parsed);
-      } else {
-        // Clear old auto-defaulted user
-        localStorage.removeItem('gajdveqcsan_user');
-        localStorage.removeItem('gajdveqcsan_explicit_login');
-        setCurrentUser(null);
-      }
-    } catch (e) {
-      console.error('Failed to parse saved user:', e);
-      setCurrentUser(null);
+      localStorage.removeItem('gajdveqcsan_user');
+      localStorage.removeItem('gajdveqcsan_explicit_login');
+    } catch {
+      // ignore
     }
+    setCurrentUser(null);
   }, []);
 
   // Sync state changes to localStorage cache
@@ -187,8 +178,6 @@ export default function App() {
     }
 
     setCurrentUser(loggedUser);
-    localStorage.setItem('gajdveqcsan_user', JSON.stringify(loggedUser));
-    localStorage.setItem('gajdveqcsan_explicit_login', 'true');
 
     // Automatically record pending vote if user clicked before logging in
     if (pendingVote) {

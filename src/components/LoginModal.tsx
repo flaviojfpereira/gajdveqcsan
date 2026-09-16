@@ -6,14 +6,13 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: (name: string, password?: string) => Promise<boolean>;
-  existingUsers: UserType[];
+  existingUsers?: UserType[];
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
-  onLogin,
-  existingUsers
+  onLogin
 }) => {
   const [nameInput, setNameInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +28,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     }
     setErrorMsg('');
     setIsLoading(true);
-    // As instructed: login by name, password is the same name
+    // Login by name
     const success = await onLogin(nameInput.trim(), nameInput.trim());
     setIsLoading(false);
     if (success) {
@@ -38,20 +37,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       setErrorMsg('Erro ao entrar. Tenta novamente.');
     }
   };
-
-  const handleSelectPredefined = async (selectedName: string) => {
-    setNameInput(selectedName);
-    setErrorMsg('');
-    setIsLoading(true);
-    const success = await onLogin(selectedName, selectedName);
-    setIsLoading(false);
-    if (success) {
-      onClose();
-    }
-  };
-
-  // Only display users that actually exist in the database (e.g., Flávio initially)
-  const existingNames = existingUsers.map(u => u.name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
@@ -73,33 +58,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               Identifica-te, marreta!
             </h2>
             <p className="text-xs text-slate-300">
-              Entra para marcares a tua disponibilidade no 5v5
+              Escreve o teu nome para marcares a tua disponibilidade
             </p>
           </div>
         </div>
-
-        {/* If existing user exists (e.g. Flávio), quick 1-click option */}
-        {existingNames.length > 0 && (
-          <div className="mb-4">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-              Já registado no grupo:
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {existingNames.map(name => (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => handleSelectPredefined(name)}
-                  disabled={isLoading}
-                  className="cartoon-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Entrar como <strong>{name}</strong></span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
