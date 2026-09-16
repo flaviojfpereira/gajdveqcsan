@@ -1,0 +1,834 @@
+{
+  "users": [
+    {
+      "id": "u_flavio",
+      "name": "Flávio",
+      "avatarSeed": "flavio",
+      "createdAt": "2026-09-16T11:38:06.827Z"
+    },
+    {
+      "id": "u_1789564037491_obgw",
+      "name": "Tiago",
+      "avatarSeed": "tiago",
+      "createdAt": "2026-09-16T13:07:17.491Z"
+    },
+    {
+      "id": "u_antonio",
+      "name": "António",
+      "avatarSeed": "antónio",
+      "createdAt": "2026-09-16T13:10:22.045Z"
+    }
+  ],
+  "days": [
+    {
+      "dateStr": "2026-09-01",
+      "dayOfWeek": "Terça",
+      "formattedDate": "1 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-02",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "2 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-03",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "3 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-04",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "4 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-05",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "5 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-06",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "6 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-07",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "7 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-08",
+      "dayOfWeek": "Terça",
+      "formattedDate": "8 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-09",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "9 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-10",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "10 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-11",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "11 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-12",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "12 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-13",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "13 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-14",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "14 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-15",
+      "dayOfWeek": "Terça",
+      "formattedDate": "15 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-16",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "16 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-17",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "17 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-18",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "18 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-19",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "19 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-20",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "20 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-21",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "21 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-22",
+      "dayOfWeek": "Terça",
+      "formattedDate": "22 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-23",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "23 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-24",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "24 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-25",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "25 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-26",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "26 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-27",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "27 de Setembro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-28",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "28 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-29",
+      "dayOfWeek": "Terça",
+      "formattedDate": "29 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-09-30",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "30 de Setembro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-01",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "1 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-02",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "2 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-03",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "3 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-04",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "4 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-05",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "5 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-06",
+      "dayOfWeek": "Terça",
+      "formattedDate": "6 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-07",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "7 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-08",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "8 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-09",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "9 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-10",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "10 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-11",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "11 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-12",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "12 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-13",
+      "dayOfWeek": "Terça",
+      "formattedDate": "13 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-14",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "14 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-15",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "15 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-16",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "16 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-17",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "17 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-18",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "18 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-19",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "19 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-20",
+      "dayOfWeek": "Terça",
+      "formattedDate": "20 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-21",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "21 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-22",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "22 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-23",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "23 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-24",
+      "dayOfWeek": "Sábado",
+      "formattedDate": "24 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-25",
+      "dayOfWeek": "Domingo",
+      "formattedDate": "25 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-26",
+      "dayOfWeek": "Segunda",
+      "formattedDate": "26 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-27",
+      "dayOfWeek": "Terça",
+      "formattedDate": "27 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-28",
+      "dayOfWeek": "Quarta",
+      "formattedDate": "28 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-29",
+      "dayOfWeek": "Quinta",
+      "formattedDate": "29 de Outubro",
+      "isWeekend": false,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    },
+    {
+      "dateStr": "2026-10-30",
+      "dayOfWeek": "Sexta",
+      "formattedDate": "30 de Outubro",
+      "isWeekend": true,
+      "slots": [
+        {
+          "id": "night_cs",
+          "label": "Noite de CS (21h30)",
+          "time": "21:30"
+        }
+      ]
+    }
+  ],
+  "votes": [
+    {
+      "id": "v_1789564040601_t2vt",
+      "userId": "u_1789564037491_obgw",
+      "userName": "Tiago",
+      "dateStr": "2026-09-18",
+      "slotId": "night_cs",
+      "status": "yes",
+      "updatedAt": "2026-09-16T13:07:20.601Z"
+    },
+    {
+      "id": "v_1789564222045_abdx",
+      "userId": "u_antonio",
+      "userName": "António",
+      "dateStr": "2026-09-25",
+      "slotId": "night_cs",
+      "status": "yes",
+      "updatedAt": "2026-09-16T13:10:22.045Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": "c1",
+      "userId": "u_flavio",
+      "userName": "Flávio",
+      "text": "Boas marretas! Vamos juntar os 10 para recordar as noites de CS! Votem no calendário em quando podem!",
+      "createdAt": "2026-09-16T11:38:06.827Z"
+    }
+  ],
+  "teams": {}
+}

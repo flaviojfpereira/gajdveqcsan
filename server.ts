@@ -172,15 +172,22 @@ app.post("/api/auth/login", (req, res) => {
 
 // Submit / Toggle a vote
 app.post("/api/votes", (req, res) => {
-  const { userId, dateStr, slotId, status } = req.body;
+  const { userId, userName, dateStr, slotId, status } = req.body;
   
   if (!userId || !dateStr || !slotId) {
     return res.status(400).json({ error: "Parâmetros em falta" });
   }
 
-  const user = state.users.find(u => u.id === userId);
+  let user = state.users.find(u => u.id === userId);
   if (!user) {
-    return res.status(404).json({ error: "Utilizador não encontrado" });
+    const fallbackName = (userName && typeof userName === "string" && userName.trim()) || "Jogador";
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, "_"),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
   }
 
   // Find existing vote
@@ -217,15 +224,22 @@ app.post("/api/votes", (req, res) => {
 
 // Bulk vote (e.g. "Posso todas as sextas", "Limpar tudo")
 app.post("/api/votes/bulk", (req, res) => {
-  const { userId, updates } = req.body;
+  const { userId, userName, updates } = req.body;
   
   if (!userId || !Array.isArray(updates)) {
     return res.status(400).json({ error: "Parâmetros inválidos" });
   }
 
-  const user = state.users.find(u => u.id === userId);
+  let user = state.users.find(u => u.id === userId);
   if (!user) {
-    return res.status(404).json({ error: "Utilizador não encontrado" });
+    const fallbackName = (userName && typeof userName === "string" && userName.trim()) || "Jogador";
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, "_"),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
   }
 
   updates.forEach(({ dateStr, slotId, status }: { dateStr: string; slotId: string; status: "yes" | "maybe" | "no" | "none" }) => {
@@ -262,15 +276,22 @@ app.post("/api/votes/bulk", (req, res) => {
 
 // Add comment to shoutbox
 app.post("/api/comments", (req, res) => {
-  const { userId, text, dateStr } = req.body;
+  const { userId, userName, text, dateStr } = req.body;
   
   if (!userId || !text || !text.trim()) {
     return res.status(400).json({ error: "Mensagem vazia" });
   }
 
-  const user = state.users.find(u => u.id === userId);
+  let user = state.users.find(u => u.id === userId);
   if (!user) {
-    return res.status(404).json({ error: "Utilizador não encontrado" });
+    const fallbackName = (userName && typeof userName === "string" && userName.trim()) || "Jogador";
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, "_"),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
   }
 
   const newComment: Comment = {

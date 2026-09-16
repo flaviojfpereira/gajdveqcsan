@@ -134,9 +134,20 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/votes', (req, res) => {
-  const { userId, dateStr, slotId, status } = req.body;
-  const user = state.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
+  const { userId, userName, dateStr, slotId, status } = req.body;
+  if (!userId || !dateStr || !slotId) return res.status(400).json({ error: 'Parâmetros em falta' });
+
+  let user = state.users.find(u => u.id === userId);
+  if (!user) {
+    const fallbackName = (userName && typeof userName === 'string' && userName.trim()) || 'Jogador';
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, '_'),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
+  }
 
   const idx = state.votes.findIndex(v => v.userId === userId && v.dateStr === dateStr && v.slotId === slotId);
 
@@ -161,9 +172,20 @@ app.post('/api/votes', (req, res) => {
 });
 
 app.post('/api/votes/bulk', (req, res) => {
-  const { userId, updates } = req.body;
-  const user = state.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
+  const { userId, userName, updates } = req.body;
+  if (!userId || !Array.isArray(updates)) return res.status(400).json({ error: 'Parâmetros inválidos' });
+
+  let user = state.users.find(u => u.id === userId);
+  if (!user) {
+    const fallbackName = (userName && typeof userName === 'string' && userName.trim()) || 'Jogador';
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, '_'),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
+  }
 
   if (Array.isArray(updates)) {
     for (const item of updates) {
@@ -191,10 +213,20 @@ app.post('/api/votes/bulk', (req, res) => {
 });
 
 app.post('/api/comments', (req, res) => {
-  const { userId, text } = req.body;
-  const user = state.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: 'Utilizador não encontrado' });
-  if (!text || !text.trim()) return res.status(400).json({ error: 'Mensagem vazia' });
+  const { userId, userName, text } = req.body;
+  if (!userId || !text || !text.trim()) return res.status(400).json({ error: 'Mensagem vazia' });
+
+  let user = state.users.find(u => u.id === userId);
+  if (!user) {
+    const fallbackName = (userName && typeof userName === 'string' && userName.trim()) || 'Jogador';
+    user = {
+      id: userId,
+      name: fallbackName,
+      avatarSeed: fallbackName.toLowerCase().replace(/\s+/g, '_'),
+      createdAt: new Date().toISOString()
+    };
+    state.users.push(user);
+  }
 
   const comment: Comment = {
     id: `c_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,

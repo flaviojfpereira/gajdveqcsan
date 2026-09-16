@@ -68,14 +68,78 @@ export default function App() {
     }
   }, [state]);
 
-  // Fetch state from server
+  // Fetch state from server and intelligently merge with local cache
   const fetchState = async () => {
     try {
       const res = await fetch('/api/state');
       if (res.ok) {
-        const data: AppState = await res.json();
-        if (data && Array.isArray(data.days) && data.days.length > 0) {
-          setState(data);
+        const serverState: AppState = await res.json();
+        if (serverState && Array.isArray(serverState.days) && serverState.days.length > 0) {
+          setState(prev => {
+            // 1. Merge votes: keep whichever has the latest updatedAt, never lose un-synced votes
+            const voteMap = new Map<string, Vote>();
+
+            if (Array.isArray(prev.votes)) {
+              for (const lv of prev.votes) {
+                const key = `${lv.userId}_${lv.dateStr}_${lv.slotId}`;
+                voteMap.set(key, lv);
+              }
+            }
+
+            if (Array.isArray(serverState.votes)) {
+              for (const sv of serverState.votes) {
+                const key = `${sv.userId}_${sv.dateStr}_${sv.slotId}`;
+                const existing = voteMap.get(key);
+                if (!existing) {
+                  voteMap.set(key, sv);
+                } else {
+                  const svTime = new Date(sv.updatedAt || 0).getTime();
+                  const exTime = new Date(existing.updatedAt || 0).getTime();
+                  if (svTime >= exTime) {
+                    voteMap.set(key, sv);
+                  }
+                }
+              }
+            }
+
+            const mergedVotes = Array.from(voteMap.values());
+
+            // 2. Merge users
+            const userMap = new Map<string, User>();
+            if (Array.isArray(prev.users)) {
+              for (const u of prev.users) userMap.set(u.id, u);
+            }
+            if (Array.isArray(serverState.users)) {
+              for (const u of serverState.users) userMap.set(u.id, u);
+            }
+            const mergedUsers = Array.from(userMap.values());
+
+            // 3. Merge comments
+            const commentMap = new Map<string, any>();
+            if (Array.isArray(prev.comments)) {
+              for (const c of prev.comments) commentMap.set(c.id, c);
+            }
+            if (Array.isArray(serverState.comments)) {
+              for (const c of serverState.comments) commentMap.set(c.id, c);
+            }
+            const mergedComments = Array.from(commentMap.values()).sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+
+            // 4. Merge teams
+            const mergedTeams = {
+              ...(prev.teams || {}),
+              ...(serverState.teams || {})
+            };
+
+            return {
+              days: serverState.days && serverState.days.length > 0 ? serverState.days : prev.days,
+              users: mergedUsers,
+              votes: mergedVotes,
+              comments: mergedComments,
+              teams: mergedTeams
+            };
+          });
         }
       }
     } catch (err) {
@@ -127,6 +191,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
+          userName: user.name,
           dateStr,
           slotId,
           status
@@ -249,6 +314,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: currentUser.id,
+          userName: currentUser.name,
           updates
         })
       });
@@ -281,6 +347,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
+          userName: user.name,
           text: cleanText
         })
       });
