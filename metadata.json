@@ -1,0 +1,6 @@
+{
+  "name": "GAJDVEQCSAN - 5v5 CS Reunion",
+  "description": "Agendamento simples e votação de disponibilidade para a reunião 5v5 de Counter-Strike dos amigos GAJDVEQCSAN.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
