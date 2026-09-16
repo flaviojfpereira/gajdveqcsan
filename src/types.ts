@@ -40,6 +40,12 @@ export interface Comment {
   dateStr?: string;
 }
 
+export interface TeamAssignment {
+  ct: string[];
+  tr: string[];
+  spectators: string[];
+}
+
 export interface TeamDistribution {
   dateStr: string;
   slotId: string;

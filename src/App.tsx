@@ -10,17 +10,6 @@ import type { AppState, User, Vote, Comment, VoteStatus, TeamDistribution } from
 import { getDefaultAppState } from './utils/calendarGenerator.js';
 
 function getInitialState(): AppState {
-  try {
-    const cached = localStorage.getItem('gajdveqcsan_cached_state');
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (parsed && Array.isArray(parsed.days) && parsed.days.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.error('Failed to parse cached state:', e);
-  }
   return getDefaultAppState();
 }
 
@@ -48,110 +37,37 @@ export default function App() {
   });
 
   // App opens strictly WITHOUT any user logged in.
-  // Purge any lingering session keys so no one is ever auto-logged in.
+  // Purge any lingering session keys and old stale cache.
   useEffect(() => {
     try {
       localStorage.removeItem('gajdveqcsan_user');
       localStorage.removeItem('gajdveqcsan_explicit_login');
+      localStorage.removeItem('gajdveqcsan_cached_state');
     } catch {
       // ignore
     }
     setCurrentUser(null);
   }, []);
 
-  // Sync state changes to localStorage cache
-  useEffect(() => {
-    try {
-      localStorage.setItem('gajdveqcsan_cached_state', JSON.stringify(state));
-    } catch (e) {
-      console.error('Failed to cache state in localStorage:', e);
-    }
-  }, [state]);
-
-  // Fetch state from server and intelligently merge with local cache
+  // Fetch authoritative state from the shared backend
   const fetchState = async () => {
     try {
       const res = await fetch('/api/state');
       if (res.ok) {
         const serverState: AppState = await res.json();
         if (serverState && Array.isArray(serverState.days) && serverState.days.length > 0) {
-          setState(prev => {
-            // 1. Merge votes: keep whichever has the latest updatedAt, never lose un-synced votes
-            const voteMap = new Map<string, Vote>();
-
-            if (Array.isArray(prev.votes)) {
-              for (const lv of prev.votes) {
-                const key = `${lv.userId}_${lv.dateStr}_${lv.slotId}`;
-                voteMap.set(key, lv);
-              }
-            }
-
-            if (Array.isArray(serverState.votes)) {
-              for (const sv of serverState.votes) {
-                const key = `${sv.userId}_${sv.dateStr}_${sv.slotId}`;
-                const existing = voteMap.get(key);
-                if (!existing) {
-                  voteMap.set(key, sv);
-                } else {
-                  const svTime = new Date(sv.updatedAt || 0).getTime();
-                  const exTime = new Date(existing.updatedAt || 0).getTime();
-                  if (svTime >= exTime) {
-                    voteMap.set(key, sv);
-                  }
-                }
-              }
-            }
-
-            const mergedVotes = Array.from(voteMap.values());
-
-            // 2. Merge users
-            const userMap = new Map<string, User>();
-            if (Array.isArray(prev.users)) {
-              for (const u of prev.users) userMap.set(u.id, u);
-            }
-            if (Array.isArray(serverState.users)) {
-              for (const u of serverState.users) userMap.set(u.id, u);
-            }
-            const mergedUsers = Array.from(userMap.values());
-
-            // 3. Merge comments
-            const commentMap = new Map<string, any>();
-            if (Array.isArray(prev.comments)) {
-              for (const c of prev.comments) commentMap.set(c.id, c);
-            }
-            if (Array.isArray(serverState.comments)) {
-              for (const c of serverState.comments) commentMap.set(c.id, c);
-            }
-            const mergedComments = Array.from(commentMap.values()).sort(
-              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-
-            // 4. Merge teams
-            const mergedTeams = {
-              ...(prev.teams || {}),
-              ...(serverState.teams || {})
-            };
-
-            return {
-              days: serverState.days && serverState.days.length > 0 ? serverState.days : prev.days,
-              users: mergedUsers,
-              votes: mergedVotes,
-              comments: mergedComments,
-              teams: mergedTeams
-            };
-          });
+          setState(serverState);
         }
       }
     } catch (err) {
-      // In static hosts (like Vercel default without serverless) or offline, state is already rendered from cache
-      console.warn('API sync notice (running with local cache):', err);
+      console.warn('API sync notice:', err);
     }
   };
 
   useEffect(() => {
     fetchState();
-    // Poll every 10s to keep friends in sync if server is available
-    const interval = setInterval(fetchState, 10000);
+    // Poll every 3s to keep all friends in sync across different browsers
+    const interval = setInterval(fetchState, 3000);
     return () => clearInterval(interval);
   }, []);
 

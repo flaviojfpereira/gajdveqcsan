@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isValidId(userId);
+    }
+
+    // Votes Collection
+    match /votes/{voteId} {
+      allow read: if true;
+      allow write: if isValidId(voteId);
+      allow delete: if isValidId(voteId);
+    }
+
+    // Comments Collection
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isValidId(commentId);
+      allow delete: if isValidId(commentId);
+    }
+
+    // Teams Collection
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if isValidId(teamId);
+      allow delete: if isValidId(teamId);
+    }
+  }
+}

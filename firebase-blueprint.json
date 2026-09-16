@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered player in the group",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "name": { "type": "string", "description": "Display name of the player" },
+        "avatarSeed": { "type": "string", "description": "Seed for avatar" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "name", "createdAt"]
+    },
+    "Vote": {
+      "title": "Vote",
+      "description": "Vote of a player for a specific date and time slot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique vote ID" },
+        "userId": { "type": "string", "description": "Player user ID" },
+        "userName": { "type": "string", "description": "Player display name" },
+        "dateStr": { "type": "string", "description": "Date format YYYY-MM-DD" },
+        "slotId": { "type": "string", "description": "Slot identifier" },
+        "status": { "type": "string", "enum": ["yes", "maybe", "no"], "description": "Availability status" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "userId", "userName", "dateStr", "slotId", "status", "updatedAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Shoutbox message from a player",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique comment ID" },
+        "userId": { "type": "string", "description": "Author user ID" },
+        "userName": { "type": "string", "description": "Author display name" },
+        "text": { "type": "string", "description": "Message content" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "userId", "userName", "text", "createdAt"]
+    },
+    "TeamLineup": {
+      "title": "TeamLineup",
+      "description": "Saved CS team assignment for a match",
+      "type": "object",
+      "properties": {
+        "dateStr": { "type": "string", "description": "Date format YYYY-MM-DD" },
+        "slotId": { "type": "string", "description": "Slot identifier" },
+        "ct": { "type": "array", "description": "Counter-Terrorist player names" },
+        "tr": { "type": "array", "description": "Terrorist player names" },
+        "spectators": { "type": "array", "description": "Bench / spectator names" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["dateStr", "slotId", "ct", "tr", "spectators"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/votes/{voteId}": {
+      "schema": "Vote",
+      "description": "All availability votes"
+    },
+    "/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Shoutbox chat messages"
+    },
+    "/teams/{teamId}": {
+      "schema": "TeamLineup",
+      "description": "Team division lineups"
+    }
+  }
+}
