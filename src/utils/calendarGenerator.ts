@@ -55,7 +55,7 @@ export function getDefaultAppState(): AppState {
         id: 'c1',
         userId: 'u_flavio',
         userName: 'Flávio',
-        text: 'Boas marretas! Vamos juntar os 10 para recordar as noites de CS! Votem no calendário em quando podem!',
+        text: 'Boas Meninos! Vamos juntar os 10 para recordar as noites de CS! Votem no calendário em quando podem!',
         createdAt: new Date().toISOString()
       }
     ],

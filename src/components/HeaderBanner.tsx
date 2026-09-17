@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Crown, LogOut, User as UserIcon, Share2, Check, Sparkles, Camera, Image as ImageIcon } from 'lucide-react';
+import { Crown, LogOut, User as UserIcon, Share2, Check, Sparkles, Camera, Film, Play } from 'lucide-react';
 import type { User } from '../types.js';
+import { VideoModal } from './VideoModal.js';
 
 interface HeaderBannerProps {
   currentUser: User | null;
@@ -18,10 +19,11 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
   const [copied, setCopied] = useState(false);
   const [bannerSrc, setBannerSrc] = useState('/banner.jpg');
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleShare = async () => {
-    const text = `🔫 GAJDVEQCSAN - Reunião 5v5 de CS à Noite! Malta, entrem e votem em quando podem para fecharmos os 10 jogadores: ${window.location.href}`;
+    const text = `🔫 Meninos (GAJDVEQCSAN) - Reunião 5v5 do Grupo de Amigos que joga de vez em quando CS à noite! Malta, entrem e votem em quando podem para fecharmos os 10 jogadores: ${window.location.href}`;
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -73,7 +75,7 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
       <div className="relative w-full max-h-[380px] h-[42vw] min-h-[220px] overflow-hidden bg-slate-900">
         <img
           src={bannerSrc}
-          alt="GAJDVEQCSAN - Grupo de amigos que joga CS à noite"
+          alt="GAJDVEQCSAN - Grupo de Amigos que joga de vez em quando CS à noite"
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"
         />
@@ -91,10 +93,22 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
         <div className="absolute top-4 right-4 left-4 flex justify-between items-center z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border-2 border-amber-400 text-amber-300 text-xs sm:text-sm font-bold shadow-lg backdrop-blur-md">
             <Crown className="w-4 h-4 text-amber-400 animate-pulse" />
-            <span className="tracking-wide uppercase font-gaming">5v5 Reunion • CS à Noite</span>
+            <span className="tracking-wide uppercase font-gaming">Meninos • 5v5 CS Reunion</span>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Easter Egg 10s Video Button */}
+            <button
+              id="easter-egg-video-btn"
+              onClick={() => setIsVideoModalOpen(true)}
+              className="cartoon-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-900/90 hover:bg-purple-800 text-purple-200 hover:text-white text-xs sm:text-sm font-bold border-2 border-purple-500/80 shadow-md cursor-pointer transition-all"
+              title="Ver vídeo épico de 10 segundos dos Meninos!"
+            >
+              <Film className="w-4 h-4 text-purple-400 animate-pulse" />
+              <span className="hidden sm:inline">Xixo</span>
+              <span className="sm:hidden">Vídeo</span>
+            </button>
+
             <button
               onClick={() => fileInputRef.current?.click()}
               className="cartoon-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-xs sm:text-sm font-bold border-2 border-amber-400/80 shadow-md cursor-pointer transition-all"
@@ -160,13 +174,23 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
           <div>
             <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-widest drop-shadow-md">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Recordar as noitadas de CS</span>
+              <span>Meninos • Recordar as noitadas de CS</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] font-gaming uppercase">
-              GAJDVEQCSAN
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1
+                onClick={() => setIsVideoModalOpen(true)}
+                className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] font-gaming uppercase pointer-events-auto cursor-pointer hover:text-amber-300 transition-colors group flex items-center gap-2"
+                title="Clica para ver o vídeo épico de 10s!"
+              >
+                <span>GAJDVEQCSAN</span>
+                <span className="text-xs font-normal normal-case opacity-0 group-hover:opacity-100 transition-opacity bg-purple-950/90 text-purple-200 border border-purple-500/60 rounded-lg px-2 py-0.5 flex items-center gap-1">
+                  <Play className="w-3 h-3 text-purple-400 fill-purple-400" />
+                  <span>Ver vídeo</span>
+                </span>
+              </h1>
+            </div>
             <p className="text-xs sm:text-sm md:text-base text-slate-200 font-semibold drop-shadow-md">
-              Grupo de amigos que joga CS à noite • Votação de disponibilidade 5v5
+              Grupo de Amigos que joga de vez em quando CS à noite • Votação de disponibilidade 5v5
             </p>
           </div>
 
@@ -185,6 +209,12 @@ export const HeaderBanner: React.FC<HeaderBannerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Video Modal Easter Egg */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+      />
     </header>
   );
 };

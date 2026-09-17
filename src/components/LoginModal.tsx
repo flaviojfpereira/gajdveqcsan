@@ -55,7 +55,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-black font-gaming tracking-wide uppercase text-amber-400">
-              Identifica-te, marreta!
+              Identifica-te, Menino!
             </h2>
             <p className="text-xs text-slate-300">
               Escreve o teu nome para marcares a tua disponibilidade

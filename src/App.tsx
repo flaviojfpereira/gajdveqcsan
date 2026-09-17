@@ -374,7 +374,7 @@ export default function App() {
 
       <footer className="w-full text-center py-6 text-xs text-slate-500 border-t border-slate-900 mt-12">
         <p className="font-gaming uppercase tracking-wider text-slate-400">
-          GAJDVEQCSAN • Grupo de amigos que joga CS à noite
+          Meninos • GAJDVEQCSAN • Grupo de Amigos que joga de vez em quando CS à noite
         </p>
         <p className="text-[11px] mt-1 text-slate-600">
           Reunião de velhos amigos para recordar o 5v5 no Counter-Strike.

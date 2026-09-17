@@ -98,7 +98,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   const handleShareTopDate = async () => {
     if (!bestCandidate) return;
     const msg = isReady
-      ? `🔥 GAJDVEQCSAN 5v5 FECHADO! Temos 10 marretas confirmados para ${bestCandidate.day.dayOfWeek}, ${bestCandidate.day.formattedDate} (${bestCandidate.slotLabel})! Ver equipas: ${window.location.href}`
+      ? `🔥 GAJDVEQCSAN 5v5 FECHADO! Temos 10 Meninos confirmados para ${bestCandidate.day.dayOfWeek}, ${bestCandidate.day.formattedDate} (${bestCandidate.slotLabel})! Ver equipas: ${window.location.href}`
       : `🎯 GAJDVEQCSAN: A data mais forte para o 5v5 é ${bestCandidate.day.dayOfWeek}, ${bestCandidate.day.formattedDate} com ${confirmedCount}/10 jogadores confirmados! Faltam apenas ${needed}. Votem aqui: ${window.location.href}`;
 
     if (navigator.clipboard) {

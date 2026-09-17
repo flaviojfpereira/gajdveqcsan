@@ -73,7 +73,7 @@ function getInitialState(): AppState {
       id: "c1",
       userId: "u_flavio",
       userName: "Flávio",
-      text: "Boas marretas! Vamos juntar os 10 para recordar as noites de CS! Votem no calendário em quando podem!",
+      text: "Boas Meninos! Vamos juntar os 10 para recordar as noites de CS! Votem no calendário em quando podem!",
       createdAt: new Date().toISOString()
     }
   ];
@@ -446,6 +446,53 @@ app.post("/api/banner/upload", (req, res) => {
   } catch (err) {
     console.error("Banner upload error:", err);
     res.status(500).json({ error: "Falha ao atualizar imagem do banner" });
+  }
+});
+
+// Check if custom video file exists
+app.get("/api/video/status", (_req, res) => {
+  const videoFile = path.join(__dirname, "public", "video.mp4");
+  if (fs.existsSync(videoFile)) {
+    const stats = fs.statSync(videoFile);
+    return res.json({
+      exists: true,
+      size: stats.size,
+      mtime: stats.mtimeMs
+    });
+  }
+  res.json({ exists: false });
+});
+
+// Upload and replace custom video file on server
+app.post("/api/video/upload", (req, res) => {
+  try {
+    const targetPublicFile = path.join(__dirname, "public", "video.mp4");
+
+    if (Buffer.isBuffer(req.body) && req.body.length > 0) {
+      fs.writeFileSync(targetPublicFile, req.body);
+    } else if (req.body && req.body.base64) {
+      const buffer = Buffer.from(req.body.base64, "base64");
+      fs.writeFileSync(targetPublicFile, buffer);
+    } else {
+      return res.status(400).json({ error: "Ficheiro de vídeo vazio ou inválido" });
+    }
+
+    const distDir = path.join(__dirname, "dist");
+    if (fs.existsSync(distDir)) {
+      fs.copyFileSync(targetPublicFile, path.join(distDir, "video.mp4"));
+    }
+
+    const stats = fs.statSync(targetPublicFile);
+    console.log("Updated video.mp4 successfully, size:", stats.size);
+    res.json({
+      success: true,
+      message: "Vídeo guardado com sucesso no servidor!",
+      mtime: stats.mtimeMs,
+      size: stats.size
+    });
+  } catch (err) {
+    console.error("Video upload error:", err);
+    res.status(500).json({ error: "Falha ao atualizar o vídeo" });
   }
 });
 
